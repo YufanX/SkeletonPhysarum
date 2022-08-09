@@ -1,0 +1,8 @@
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\bin\Skeleton.dll
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\bin\Skeleton.pdb
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.csproj.CoreCompileInputs.cache
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.dll
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.pdb
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.Properties.Resources.resources
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.csproj.GenerateResource.cache
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\SkeletonPhysarum\Skeleton\obj\Release\Skeleton.csproj.AssemblyReference.cache

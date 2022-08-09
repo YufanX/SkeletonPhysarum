@@ -1,0 +1,8 @@
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\bin\Slime.dll
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\bin\Slime.pdb
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.Properties.Resources.resources
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.csproj.GenerateResource.cache
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.csproj.CoreCompileInputs.cache
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.dll
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.pdb
+D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\GH_Assembly\Slime\Slime\obj\Release\Slime.csproj.AssemblyReference.cache
