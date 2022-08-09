@@ -1,0 +1,200 @@
+//This code is for Grasshopper C# component, copy and paste in the console and specify data inputs to make it work
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+using Rhino;
+using Rhino.Geometry;
+
+using Grasshopper;
+using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
+
+using System.Drawing;
+using Grasshopper.Kernel.Geometry;
+
+/// <summary>
+/// This class will be instantiated on demand by the Script component.
+/// </summary>
+public class Script_Instance : GH_ScriptInstance
+{
+#region Utility functions
+  /// <summary>Print a String to the [Out] Parameter of the Script component.</summary>
+  /// <param name="text">String to print.</param>
+  private void Print(string text) { /* Implementation hidden. */ }
+  /// <summary>Print a formatted String to the [Out] Parameter of the Script component.</summary>
+  /// <param name="format">String format.</param>
+  /// <param name="args">Formatting parameters.</param>
+  private void Print(string format, params object[] args) { /* Implementation hidden. */ }
+  /// <summary>Print useful information about an object instance to the [Out] Parameter of the Script component. </summary>
+  /// <param name="obj">Object instance to parse.</param>
+  private void Reflect(object obj) { /* Implementation hidden. */ }
+  /// <summary>Print the signatures of all the overloads of a specific method to the [Out] Parameter of the Script component. </summary>
+  /// <param name="obj">Object instance to parse.</param>
+  private void Reflect(object obj, string method_name) { /* Implementation hidden. */ }
+#endregion
+
+#region Members
+  /// <summary>Gets the current Rhino document.</summary>
+  private readonly RhinoDoc RhinoDocument;
+  /// <summary>Gets the Grasshopper document that owns this script.</summary>
+  private readonly GH_Document GrasshopperDocument;
+  /// <summary>Gets the Grasshopper script component that owns this script.</summary>
+  private readonly IGH_Component Component;
+  /// <summary>
+  /// Gets the current iteration count. The first call to RunScript() is associated with Iteration==0.
+  /// Any subsequent call within the same solution will increment the Iteration count.
+  /// </summary>
+  private readonly int Iteration;
+#endregion
+
+  /// <summary>
+  /// This procedure contains the user code. Input parameters are provided as regular arguments,
+  /// Output parameters as ref arguments. You don't have to assign output parameters,
+  /// they will have a default value.
+  /// </summary>
+  private void RunScript(string file, Mesh baseMesh, Rectangle3d bound, double strokeSize, double threshold, double edgeSegmentLength, Transform transform, List<Line> constantFeed, string environmentImage, bool reset, ref object A)
+  {
+
+    if (counter == 0){
+      sourceImg = new Bitmap(file);
+      rw = sourceImg.Width;
+      rh = sourceImg.Height;
+
+      iterImg = sourceImg.Clone(new Rectangle(0, 0, rw, rh), System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+      canvas = Graphics.FromImage(iterImg);
+      lines = new List<Line>();
+      process = new Grasshopper.DataTree<Line>();
+    }
+    counter++;
+
+    if(reset){
+      counter = 0;
+    }
+
+    //Drawing setup - pen and shape
+    pen = new Pen(Color.White, Convert.ToSingle(rw * strokeSize / bound.Width));
+    pen.StartCap = System.Drawing.Drawing2D.LineCap.Triangle;
+    pen.EndCap = System.Drawing.Drawing2D.LineCap.Triangle;
+
+    //Skeletonize and draw on iterImg with skeleton trails
+    lines.Clear();
+    try{
+      Extract(threshold, iterImg, baseMesh, bound, edgeSegmentLength, strokeSize, ref lines);
+      canvas.Clear(Color.Black);
+
+      foreach(Line l in lines){
+        l.Transform(transform);
+        canvas.DrawLine(pen, Convert.ToInt32(rw * (l.From.X - bound.X.Min) / bound.Width), Convert.ToInt32(rh * (l.From.Y - bound.Y.Min) / bound.Height), Convert.ToInt32(rw * (l.To.X - bound.X.Min) / bound.Width), Convert.ToInt32(rh * (l.To.Y - bound.Y.Min) / bound.Height));
+      }
+    }
+    catch(Exception exMsg){
+      Print(exMsg.Message);
+      counter = 0;
+    }
+
+    foreach(Line l in constantFeed){
+      canvas.DrawLine(pen, Convert.ToInt32(rw * (l.From.X - bound.X.Min) / bound.Width), Convert.ToInt32(rh * (l.From.Y - bound.Y.Min) / bound.Height), Convert.ToInt32(rw * (l.To.X - bound.X.Min) / bound.Width), Convert.ToInt32(rh * (l.To.Y - bound.Y.Min) / bound.Height));
+    }
+
+    //Overlay environment image
+    try{
+      canvas.DrawImage(environmentImg, new Rectangle(0, 0, rw, rh));
+      environmentImg = new Bitmap(environmentImage);
+    }
+    catch(Exception exMsg){
+      Print(exMsg.Message);
+    }
+
+    Print(counter.ToString());
+    A = lines;
+    iterImg.Save(@"D:\XYF\PROJECT_PERSONAL\SkeletonBasedPhysarumSystem\20211201_CSystem\iterImg.jpg");
+  }
+
+  // <Custom additional code> 
+  Rhino.Geometry.Plane cutter = new Rhino.Geometry.Plane(new Point3d(0, 0, 0.5), new Vector3d(0, 0, 1));
+  Bitmap sourceImg;
+  Bitmap iterImg;
+  Bitmap environmentImg;
+  Graphics canvas;
+  int rw;
+  int rh;
+  List<Line> lines;
+  Grasshopper.DataTree<Line> process;
+  Pen pen;
+
+
+  int counter = 0;
+  public void Extract(double threshold0, Bitmap sourceImg0, Mesh baseMesh0, Rectangle3d r0, double edgeSegmentLength0, double maxSkeletonLength0, ref List<Line> result){
+    double threshold = threshold0;
+    Bitmap sourceImg = sourceImg0;
+    Mesh baseMesh = baseMesh0;
+    Rectangle3d r = r0;
+    double edgeSegmentLength = edgeSegmentLength0;
+    double maxSkeletonLength = maxSkeletonLength0;
+
+    List<Point3d> extractedPoints = new List<Point3d>();
+    Point3d[] rectCorners = r.BoundingBox.GetCorners();
+
+    Polyline[] edges;
+    for(int i = 0; i < baseMesh.Vertices.Count; i++){
+      var pt = baseMesh.Vertices[i];
+      Color rawColor = sourceImg.GetPixel(Math.Min(Convert.ToInt32((pt.X / r.Width) * sourceImg.Width), sourceImg.Width - 1), Math.Min(Convert.ToInt32((pt.Y / r.Height) * sourceImg.Height), sourceImg.Height - 1));
+      baseMesh.Vertices.SetVertex(i, pt.X, pt.Y, rawColor.GetBrightness());
+    }
+    edges = Rhino.Geometry.Intersect.Intersection.MeshPlane(baseMesh, cutter);
+
+
+    List<Node2> unit = new List<Node2>();
+    Node2List nodes = new Node2List();
+
+    for(int i = 0; i < edges.Length; i++){
+      var edgesCrv = edges[i].ToPolylineCurve();
+      for(int j = 0; j < (edgesCrv.Domain.Max - edgesCrv.Domain.Min) / edgeSegmentLength; j++){
+        var tpt = edgesCrv.PointAt(j * edgeSegmentLength);
+        unit.Add(new Node2(tpt.X, tpt.Y));
+      }
+    }
+
+    foreach(Node2 a in unit){
+      nodes.Append(a);
+    }
+
+    Node2List outline = new Node2List();
+    foreach (Point3d p in rectCorners)
+    {
+      Node2 n = new Node2(p.X, p.Y);
+      outline.Append(n);
+    }
+
+    var delaunay = Grasshopper.Kernel.Geometry.Delaunay.Solver.Solve_Connectivity(nodes, 0.1, false);
+    var voronoi = Grasshopper.Kernel.Geometry.Voronoi.Solver.Solve_Connectivity(nodes, delaunay, outline);
+
+
+    List<Line> centralLine = new  List<Line>();
+    List<Double> vs = new  List<Double>();
+    List<Double> ve = new  List<Double>();
+    List<Point3d> ps = new  List<Point3d>();
+    List<Point3d> pe = new  List<Point3d>();
+    foreach( var c in voronoi)
+    {
+      Polyline pl = c.ToPolyline();
+      var seg = pl.GetSegments();
+
+      foreach( Line l in seg){
+        var pStart = sourceImg.GetPixel(Convert.ToInt32((l.From.X / r.Width) * (sourceImg.Width - 1)), Convert.ToInt32((l.From.Y / r.Height) * (sourceImg.Height - 1)));
+        var pEnd = sourceImg.GetPixel(Convert.ToInt32((l.To.X / r.Width) * (sourceImg.Width - 1)), Convert.ToInt32((l.To.Y / r.Height) * (sourceImg.Height - 1)));
+        var pMid = sourceImg.GetPixel(Convert.ToInt32((0.5 * (l.From.X + l.To.X) / r.Width) * (sourceImg.Width - 1)), Convert.ToInt32((0.5 * (l.From.Y + l.To.Y) / r.Height) * (sourceImg.Height - 1)));
+
+        if(pStart.GetBrightness() >= threshold && pMid.GetBrightness() >= threshold && pEnd.GetBrightness() >= threshold && l.Length < maxSkeletonLength){
+          centralLine.Add(l);
+        }
+      }
+    }
+    result = centralLine;
+  }
+  // </Custom additional code> 
+}
+
