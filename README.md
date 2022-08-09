@@ -15,3 +15,5 @@ as the basis of the generative process.
 The redraw process makes it possible to reconnect skeletons via intersected brushes, continuously changing the topology of the network.
 Unlike the traditional slime mold algorithm which operates on every single agent, our method is driven by image-based solutions.
 On the output side, this system provides a condensed vector result, which is more applicable for design purposes.
+
+Video Link: https://youtu.be/Hv_NKE5N9BU
